@@ -60,6 +60,16 @@ class ObsConfig:
 
 
 @dataclass(frozen=True)
+class DropoutConfig:
+    enabled: bool = False
+    p_start: float = 0.0
+    p_max: float = 0.30
+    warmup_steps: int = 1_000_000
+    drop_body: bool = True
+    drop_wall: bool = True
+
+
+@dataclass(frozen=True)
 class DynamicControlConfig:
     enable_dynamic_control: bool = True
     cycle_window_steps: int = 36

@@ -37,7 +37,7 @@ from stable_baselines3.common.vec_env import DummyVecEnv, SubprocVecEnv, VecNorm
 
 from .observation import observation_size
 from .ppo_env import SnakePPOEnv
-from .settings import ObsConfig, PpoConfig, RewardConfig, Settings
+from .settings import DropoutConfig, ObsConfig, PpoConfig, RewardConfig, Settings
 
 ProgressFn = Callable[[int], None]
 ScoreFn = Callable[[int], None]
@@ -74,6 +74,7 @@ class _EnvFactory:
     reward_config: RewardConfig
     obs_config: ObsConfig
     max_episode_steps: int | None = None
+    dropout_config: DropoutConfig | None = None
 
     def __call__(self):
         env = SnakePPOEnv(
@@ -81,6 +82,7 @@ class _EnvFactory:
             seed=self.seed,
             reward_config=self.reward_config,
             obs_config=self.obs_config,
+            dropout_config=self.dropout_config,
         )
         max_steps = None if self.max_episode_steps is None else max(1, int(self.max_episode_steps))
         if max_steps is not None:
@@ -652,12 +654,14 @@ class PpoSnakeAgent:
         obs_config: ObsConfig,
         autoload: bool = True,
         legacy_model_path: Path | None = None,
+        dropout_config: DropoutConfig | None = None,
     ) -> None:
         self.settings = settings
         self.artifact_dir = Path(artifact_dir)
         self.config = config
         self.reward_config = reward_config
         self.obs_config = obs_config
+        self.dropout_config = dropout_config
         self._validate_config(config)
         self.env_count = max(1, int(config.env_count))
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -1842,6 +1846,7 @@ class PpoSnakeAgent:
                 seed=episode_seed,
                 reward_config=self._effective_reward_config(),
                 obs_config=self.obs_config,
+                dropout_config=None,
             )
             try:
                 obs, _ = env.reset()
@@ -1880,6 +1885,7 @@ class PpoSnakeAgent:
                 seed=int(seed),
                 reward_config=self._effective_reward_config(),
                 obs_config=self.obs_config,
+                dropout_config=None,
             )
             try:
                 obs, _ = env.reset(seed=int(seed))
@@ -1925,7 +1931,7 @@ class PpoSnakeAgent:
             logger.exception("Failed to load eval model from %s", path)
             return None
 
-    def _make_single_env(self, seed: int | None, *, max_episode_steps: int | None = None):
+    def _make_single_env(self, seed: int | None, *, max_episode_steps: int | None = None, dropout_config: DropoutConfig | None = None):
         reward_cfg = self._effective_reward_config()
         return _EnvFactory(
             board_cells=int(self.settings.board_cells),
@@ -1933,10 +1939,11 @@ class PpoSnakeAgent:
             reward_config=reward_cfg,
             obs_config=self.obs_config,
             max_episode_steps=max_episode_steps,
+            dropout_config=dropout_config,
         )
 
-    def _make_vec_env(self, seeds: list[int | None], *, max_episode_steps: int | None = None):
-        env_fns = [self._make_single_env(seed, max_episode_steps=max_episode_steps) for seed in seeds]
+    def _make_vec_env(self, seeds: list[int | None], *, max_episode_steps: int | None = None, dropout_config: DropoutConfig | None = None):
+        env_fns = [self._make_single_env(seed, max_episode_steps=max_episode_steps, dropout_config=dropout_config) for seed in seeds]
         if bool(getattr(self.config, "use_subproc_env", False)) and len(env_fns) > 1:
             main_file = getattr(sys.modules.get("__main__"), "__file__", "") or ""
             if "<stdin>" in str(main_file):
@@ -1948,7 +1955,7 @@ class PpoSnakeAgent:
     def _make_train_vec_env(self) -> VecNormalize:
         base_seed = None if self.config.seed is None else int(self.config.seed)
         seeds = [None if base_seed is None else int(base_seed + idx) for idx in range(self.env_count)]
-        vec = self._make_vec_env(seeds)
+        vec = self._make_vec_env(seeds, dropout_config=self.dropout_config)
         resume_stats = self._resume_vecnormalize_source
         if resume_stats is None or not resume_stats.exists():
             candidate = self._resume_vecnormalize_path()
@@ -1980,6 +1987,27 @@ class PpoSnakeAgent:
 
     def is_adaptive_reward_enabled(self) -> bool:
         return bool(self._adaptive_reward_enabled)
+
+    def get_dropout_metrics(self) -> dict[str, float] | None:
+        vec = getattr(self, "_train_vecnormalize", None)
+        if vec is None:
+            return None
+        try:
+            inner = vec.env
+            envs = getattr(inner, "envs", None) or getattr(inner, "venv", None)
+            if envs is None:
+                return None
+            all_metrics = []
+            for e in envs:
+                fn = getattr(e, "dropout_metrics", None)
+                if fn is not None:
+                    all_metrics.append(fn())
+            if not all_metrics:
+                return None
+            keys = all_metrics[0].keys()
+            return {k: sum(m[k] for m in all_metrics) / len(all_metrics) for k in keys}
+        except Exception:
+            return None
 
     @staticmethod
     def _linear_schedule(start: float, end: float) -> Callable[[float], float]:

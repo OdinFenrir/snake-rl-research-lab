@@ -11,7 +11,7 @@ import pygame
 from .game import SnakeGame
 from .panel_ui import SidePanelsRenderer
 from .protocols import AgentLike, TrainingLike
-from .settings import ObsConfig, PpoConfig, RewardConfig, Settings
+from .settings import DropoutConfig, ObsConfig, PpoConfig, RewardConfig, Settings
 
 
 @dataclass(frozen=True)
@@ -38,6 +38,7 @@ def build_runtime(
     ppo_config: PpoConfig | None = None,
     reward_config: RewardConfig | None = None,
     obs_config: ObsConfig | None = None,
+    dropout_config: DropoutConfig | None = None,
     state_dir: Path | None = None,
     experiment_name: str = "baseline",
 ) -> AppRuntime:
@@ -62,6 +63,7 @@ def build_runtime(
         config=ppo_config,
         reward_config=reward_config,
         obs_config=obs_config,
+        dropout_config=dropout_config,
         autoload=False,
         legacy_model_path=legacy_model_file,
     )
