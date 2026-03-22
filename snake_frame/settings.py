@@ -16,7 +16,7 @@ class PpoConfig:
     learning_rate_end: float = 1.0e-5
     clip_range: float = 0.15
     target_kl: float | None = 0.015
-    ent_coef_start: float = 0.01
+    ent_coef_start: float = 0.05
     ent_coef_end: float = 0.0008
     policy_net_arch: tuple[int, ...] = (512, 512)  # Increased for NewTest3.
     policy_net_arch_pi: tuple[int, ...] | None = None
@@ -62,8 +62,8 @@ class ObsConfig:
 @dataclass(frozen=True)
 class DropoutConfig:
     enabled: bool = False
-    p_start: float = 0.0
-    p_max: float = 0.30
+    p_start: float = 0.02
+    p_max: float = 0.10
     warmup_steps: int = 1_000_000
     drop_body: bool = True
     drop_wall: bool = True

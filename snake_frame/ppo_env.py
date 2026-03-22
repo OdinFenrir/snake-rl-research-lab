@@ -263,6 +263,8 @@ class SnakePPOEnv(gym.Env[np.ndarray, int]):
                 break
 
     def action_masks(self) -> np.ndarray:
+        if self.dropout_config is not None and self.dropout_config.enabled:
+            return np.array([True, True, True], dtype=np.int8)
         mask = valid_action_mask(self.board_cells, self.snake, self.direction)
         return np.array(mask, dtype=np.int8)
 
