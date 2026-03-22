@@ -40,6 +40,14 @@ def draw(app) -> None:
         on_color=(app.theme.toggle_positive_bg, app.theme.toggle_positive_hover),
         off_color=(app.theme.toggle_negative_bg, app.theme.toggle_negative_hover),
     )
+    dropout_enabled = bool(app.app_state.dropout_enabled)
+    app._set_toggle_button_visual(
+        app.btn_dropout_toggle,
+        label="Dropout Training",
+        enabled=dropout_enabled,
+        on_color=(app.theme.toggle_positive_bg, app.theme.toggle_positive_hover),
+        off_color=(app.theme.toggle_negative_bg, app.theme.toggle_negative_hover),
+    )
     debug_enabled = bool(app.app_state.debug_overlay)
     app._set_toggle_button_visual(
         app.btn_debug_toggle,
@@ -297,6 +305,7 @@ def draw_options_window(app) -> None:
                 [app.btn_adaptive_toggle],
                 [app.btn_space_strategy_toggle],
                 [app.btn_tail_trend_toggle],
+                [app.btn_dropout_toggle],
             ],
         ),
         (

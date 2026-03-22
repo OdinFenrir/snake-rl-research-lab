@@ -205,6 +205,7 @@ class SnakeFrameApp:
         self.btn_adaptive_toggle: Button = controls.btn_adaptive_toggle
         self.btn_space_strategy_toggle: Button = controls.btn_space_strategy_toggle
         self.btn_tail_trend_toggle: Button = controls.btn_tail_trend_toggle
+        self.btn_dropout_toggle: Button = controls.btn_dropout_toggle
         self.btn_theme_cycle: Button = controls.btn_theme_cycle
         self.btn_board_bg_cycle: Button = controls.btn_board_bg_cycle
         self.btn_snake_style_cycle: Button = controls.btn_snake_style_cycle
@@ -246,6 +247,7 @@ class SnakeFrameApp:
             (self.btn_adaptive_toggle, self.actions.on_adaptive_toggle_clicked),
             (self.btn_space_strategy_toggle, self._on_space_strategy_toggle_clicked),
             (self.btn_tail_trend_toggle, self._on_tail_trend_toggle_clicked),
+            (self.btn_dropout_toggle, self.actions.on_dropout_toggle_clicked),
             (self.btn_theme_cycle, self._on_theme_cycle_clicked),
             (self.btn_board_bg_cycle, self._on_board_background_cycle_clicked),
             (self.btn_snake_style_cycle, self._on_snake_style_cycle_clicked),

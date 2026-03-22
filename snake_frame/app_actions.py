@@ -164,6 +164,19 @@ class AppActions:
         state = "ON" if not enabled else "OFF"
         self.set_status(f"Adaptive reward {state} (applies to next training steps)")
 
+    def on_dropout_toggle_clicked(self) -> None:
+        snap = self.training.snapshot()
+        if snap.active:
+            self.set_status("Stop training first to change dropout setting")
+            return
+        self.app_state.dropout_enabled = not bool(self.app_state.dropout_enabled)
+        agent = getattr(self, "agent", None)
+        if agent is not None:
+            from .settings import DropoutConfig
+            agent.dropout_config = DropoutConfig(enabled=self.app_state.dropout_enabled)
+        state = "ON" if self.app_state.dropout_enabled else "OFF"
+        self.set_status(f"Dropout training {state} (applies to next training run)")
+
     def on_debug_toggle_clicked(self) -> None:
         self.app_state.debug_overlay = not bool(self.app_state.debug_overlay)
         state = "ON" if self.app_state.debug_overlay else "OFF"
@@ -253,6 +266,7 @@ class AppActions:
             "gameRunning": bool(self.app_state.game_running),
             "spaceStrategyEnabled": bool(self.app_state.space_strategy_enabled),
             "tailTrendEnabled": bool(getattr(self.app_state, "tail_trend_enabled", True)),
+            "dropoutEnabled": bool(self.app_state.dropout_enabled),
             "debugOverlay": bool(self.app_state.debug_overlay),
             "debugReachableOverlay": bool(self.app_state.debug_reachable_overlay),
             "rightPanelTab": str(getattr(self.app_state, "right_panel_tab", "train")),
@@ -460,6 +474,9 @@ class AppActions:
         )
         self.app_state.tail_trend_enabled = bool(
             payload.get("tailTrendEnabled", getattr(self.app_state, "tail_trend_enabled", True))
+        )
+        self.app_state.dropout_enabled = bool(
+            payload.get("dropoutEnabled", self.app_state.dropout_enabled)
         )
         self.app_state.debug_overlay = bool(payload.get("debugOverlay", self.app_state.debug_overlay))
         self.app_state.debug_reachable_overlay = bool(

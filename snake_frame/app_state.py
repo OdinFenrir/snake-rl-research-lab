@@ -24,6 +24,7 @@ class AppState:
     debug_reachable_overlay: bool = False
     space_strategy_enabled: bool = True
     tail_trend_enabled: bool = True
+    dropout_enabled: bool = False
     right_panel_tab: str = "train"
     training_episode_scores: list[int] = field(default_factory=list)
     training_episode_steps: list[int] = field(default_factory=list)
