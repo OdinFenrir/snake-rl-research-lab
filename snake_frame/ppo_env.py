@@ -132,33 +132,16 @@ class SnakePPOEnv(gym.Env[np.ndarray, int]):
 
         applied_action = action_i
         dropout_triggered = False
-        cand_head = None
-        cand_dir = None
         if self.dropout_config is not None and self.dropout_config.enabled:
             self._dropout_total_steps += 1
             self._dropout_lifetime_steps += 1
             if self._is_action_unsafe(action_i):
                 self._dropout_unsafe_count += 1
                 self._dropout_lifetime_unsafe += 1
-                cand_dir = action_to_direction(self.direction, action_i)
-                cand_head = next_head(self.snake[0], cand_dir)
-                is_wall = cand_head[0] < 0 or cand_head[0] >= self.board_cells or cand_head[1] < 0 or cand_head[1] >= self.board_cells
-                should_drop = (
-                    (self.dropout_config.drop_body and not is_wall) or
-                    (self.dropout_config.drop_wall and is_wall)
-                )
-                if should_drop and random.random() < self._get_dropout_p():
-                    dropout_triggered = True
-                    self._dropout_trigger_count += 1
-                    self._dropout_lifetime_trigger += 1
-                    self.direction = cand_dir
-                else:
-                    self._dropout_override_count += 1
-                    self._dropout_lifetime_override += 1
-                    applied_action = self._correct_to_safe(action_i)
-                    self.direction = action_to_direction(self.direction, applied_action)
-        elif not dropout_triggered:
-            self.direction = action_to_direction(self.direction, applied_action)
+                self._dropout_trigger_count += 1
+                self._dropout_lifetime_trigger += 1
+                dropout_triggered = True
+        self.direction = action_to_direction(self.direction, applied_action)
         new_head = next_head(self.snake[0], self.direction)
 
         if is_danger(self.board_cells, self.snake, new_head):
