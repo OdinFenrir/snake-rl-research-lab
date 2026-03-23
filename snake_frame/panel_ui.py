@@ -73,7 +73,7 @@ class PanelControls:
         btn_adaptive_toggle: Toggle for adaptive reward
         btn_space_strategy_toggle: Toggle for space strategy
         btn_tail_trend_toggle: Toggle for tail trend features
-        btn_dropout_toggle: Toggle for dropout training
+        btn_dropout_toggle: Toggle for full action mask
         btn_theme_cycle: Button to cycle through themes
         btn_board_bg_cycle: Button to cycle board background modes
         btn_snake_style_cycle: Button to cycle snake styles

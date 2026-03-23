@@ -167,7 +167,7 @@ class AppActions:
     def on_dropout_toggle_clicked(self) -> None:
         snap = self.training.snapshot()
         if snap.active:
-            self.set_status("Stop training first to change dropout setting")
+            self.set_status("Stop training first to change mask setting")
             return
         self.app_state.dropout_enabled = not bool(self.app_state.dropout_enabled)
         agent = getattr(self, "agent", None)
@@ -175,7 +175,7 @@ class AppActions:
             from .settings import DropoutConfig
             agent.dropout_config = DropoutConfig(enabled=self.app_state.dropout_enabled)
         state = "ON" if self.app_state.dropout_enabled else "OFF"
-        self.set_status(f"Dropout training {state} (applies to next training run)")
+        self.set_status(f"Full Mask {state} (applies to next training run)")
 
     def on_debug_toggle_clicked(self) -> None:
         self.app_state.debug_overlay = not bool(self.app_state.debug_overlay)

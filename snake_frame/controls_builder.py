@@ -250,7 +250,7 @@ def build_controls(
     )
     y += int(controls_layout.row_height + controls_layout.gap)
     btn_dropout_toggle = Button(
-        "Dropout Training: OFF",
+        "Full Mask: OFF",
         pygame.Rect(controls_layout.x, y, controls_layout.width, controls_layout.row_height),
         bg=theme.toggle_negative_bg,
         bg_hover=theme.toggle_negative_hover,

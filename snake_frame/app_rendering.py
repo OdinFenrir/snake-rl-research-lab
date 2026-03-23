@@ -43,7 +43,7 @@ def draw(app) -> None:
     dropout_enabled = bool(app.app_state.dropout_enabled)
     app._set_toggle_button_visual(
         app.btn_dropout_toggle,
-        label="Dropout Training",
+        label="Full Mask",
         enabled=dropout_enabled,
         on_color=(app.theme.toggle_positive_bg, app.theme.toggle_positive_hover),
         off_color=(app.theme.toggle_negative_bg, app.theme.toggle_negative_hover),
