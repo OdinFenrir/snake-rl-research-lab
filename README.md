@@ -1,7 +1,36 @@
 # Snake RL Research Lab
 
+## Overview
 An interactive Snake RL lab built with `pygame` and PPO.  
 The goal is simple: train an agent, watch it play live, measure failures, and iteratively improve behavior with reproducible data.
+
+## Tech Stack
+- Python 3.12
+- pygame
+- stable-baselines3
+- sb3-contrib
+- NumPy / pandas-based analysis scripts
+
+## Features
+- Live training dashboard with run telemetry
+- PPO + controller arbitration logic
+- Holdout suite and worst-seed diagnostics
+- Artifact generation for training and agent performance reports
+- Model manager and experiment isolation workflows
+
+## Screenshots
+- Live UI screenshots are in `docs/assets/` (see Demo section below).
+
+## Run Locally
+```bat
+setup_env.bat
+run.bat
+```
+
+## Roadmap
+- [ ] Add a concise benchmark table near the top of README
+- [ ] Add a quick architecture diagram image
+- [ ] Add a short GIF of live training + agent play
 
 ## What This Demonstrates
 
@@ -230,8 +259,8 @@ Saved artifacts (default baseline path shown):
 - `state/ppo/<experiment_name>/arbiter_model.json`
 - `state/ppo/<experiment_name>/tactic_memory.json`
 
-The app starts detached (`_detached_session`) and does not load baseline automatically.
-Baseline writes happen only after explicit `Load baseline` or `Save` to `baseline`.
+The app starts with the `baseline` experiment loaded.
+Use `Create` to make a new experiment, `Load` to load an existing one, or `Save` to persist changes.
 
 Metadata captures run IDs, timesteps, configs, provenance, and eval summaries for future tuning.
 
